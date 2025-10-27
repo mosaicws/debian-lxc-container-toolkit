@@ -140,9 +140,9 @@ else
   read -p "Enable remote GUI file editing via SFTP/FTP tools? [y/N]: " ENABLE_NOPASSWD
 
   if [[ "$ENABLE_NOPASSWD" =~ ^[Yy]$ ]]; then
-    echo "Creating sudoers file: ${SUDOERS_FILE}"
+    echo "Creating sudoers file with NOPASSWD: ${SUDOERS_FILE}"
 
-    # Create sudoers file with proper permissions
+    # Create sudoers file with NOPASSWD
     cat > "$SUDOERS_FILE" << EOF
 # Allow admin user to run any command without password
 # This enables non-interactive tools like WinSCP to access files via sudo
@@ -162,8 +162,29 @@ EOF
       exit 1
     fi
   else
-    echo -e "${GREEN}✓ Sudo will require password (standard configuration)${NC}"
-    NOPASSWD_SUDO=false
+    # Standard sudo configuration - requires password
+    SUDOERS_FILE_PASSWD="/etc/sudoers.d/90-admin"
+    echo "Creating sudoers file (password required): ${SUDOERS_FILE_PASSWD}"
+
+    # Create sudoers file that requires password
+    cat > "$SUDOERS_FILE_PASSWD" << EOF
+# Allow admin user to run any command (password required)
+# Standard security practice
+${ADMIN_USER} ALL=(ALL:ALL) ALL
+EOF
+
+    # Set correct permissions (must be 0440 or 0640)
+    chmod 0440 "$SUDOERS_FILE_PASSWD"
+
+    # Validate sudoers syntax
+    if visudo -c -f "$SUDOERS_FILE_PASSWD"; then
+      echo -e "${GREEN}✓ Sudo configured (password required - standard security)${NC}"
+      NOPASSWD_SUDO=false
+    else
+      echo -e "${RED}Error: Invalid sudoers syntax. Removing file.${NC}" >&2
+      rm -f "$SUDOERS_FILE_PASSWD"
+      exit 1
+    fi
   fi
 fi
 
