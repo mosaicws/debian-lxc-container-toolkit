@@ -26,6 +26,22 @@ LXC containers (unprivileged ideally) provide efficient isolation with minimal o
 - Proxmox VE 8.x or compatible LXC host
 - Internet access for packages and container images
 
+# Suggested usage:
+
+1. Create a Proxmox snapshot of the the clean Debian LXC before _before_ installation of debian-lxc-container-toolkit
+2. Immediately after installation, take another snapshot - give it a meaningful, clear description, e.g. "Installed debian-lxc-container-toolkit, no scripts run"
+3. If you plan on setting up Docker containers using Podman and Quadlets using the scripts, run sudo install-podman-cockpit.sh and then _take another snapshot_ before setting up any containers.
+
+   Now _instead_ of converting this LXC directly to a template which would mean you no longer have access to edit or configure it further, you can right click this LXC and choose "Clone". In the Clone window that appears, **crucially**, you can **choose the Snapshot** you want to create a clone from. This is a super powerful and useful feature.
+
+   Once you have created the clone from the chosen snapshot, you can **then** _convert this clone_ to a Proxmox template by right clicking it in the webui and choosing "Convert to template".
+
+   Once it's a template it's no longer editable or configurable but you can now right click the template and choose "Clone". Then, if you create a **"Linked Clone"**, the clone that is created from this template depends on it and inherits it current state as the basis for the new LXC.
+
+   **_Here's where the magic happens:_**
+
+   You can create multiple Linked Clones from this baseline Proxmox template where all the services you intent to set up share a common system configuration. This saves disk space and simplifies service container deployment.
+
 ## Installation
 
 ### Quick Install
