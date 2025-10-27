@@ -281,7 +281,22 @@ if [ "$NOPASSWD_SUDO" = true ]; then
 fi
 
 # ============================================================================
-# STEP 8: Summary
+# STEP 8: Setup Enhanced MOTD
+# ============================================================================
+
+echo -e "\n${BLUE}──── Step 8: Setting up Enhanced MOTD ────${NC}"
+
+# Run the MOTD setup script silently
+if [ -x "/usr/local/sbin/setup-enhanced-motd.sh" ]; then
+  /usr/local/sbin/setup-enhanced-motd.sh > /dev/null 2>&1
+  echo -e "${GREEN}✓ Enhanced MOTD configured${NC}"
+  echo -e "  Dynamic login message will show system status and available commands"
+else
+  echo -e "${YELLOW}⚠ MOTD setup script not found, skipping${NC}"
+fi
+
+# ============================================================================
+# STEP 9: Summary
 # ============================================================================
 
 echo -e "\n${BLUE}═══════════════════════════════════════════════════════════════${NC}"
@@ -314,11 +329,10 @@ echo ""
 echo -e "  2. ${YELLOW}Test SSH access:${NC}"
 echo -e "     ssh ${ADMIN_USER}@${IP_ADDRESS:-<ip-address>}"
 echo ""
-echo -e "  3. ${YELLOW}Continue setup by running:${NC}"
-echo -e "     ${GREEN}setup-enhanced-motd.sh${NC}      - Configure login message"
-echo -e "     ${GREEN}install-podman-cockpit.sh${NC}   - Install Podman + Cockpit"
+echo -e "  3. ${YELLOW}Install Podman and Cockpit (optional):${NC}"
+echo -e "     ${GREEN}sudo install-podman-cockpit.sh${NC}"
 echo ""
 echo -e "  4. ${YELLOW}Deploy services using:${NC}"
-echo -e "     ${GREEN}create-podman-service.sh${NC}    - For containerized services"
-echo -e "     ${GREEN}create-service-user.sh${NC}      - For native applications"
+echo -e "     ${GREEN}sudo create-podman-service.sh${NC}    - For containerized services"
+echo -e "     ${GREEN}sudo create-service-user.sh${NC}      - For native applications"
 echo ""

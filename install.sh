@@ -203,7 +203,7 @@ echo -e "  4. ${GREEN}create-service-user.sh${NC}"
 echo "     - Creates dedicated system user for native applications"
 echo ""
 echo -e "  5. ${GREEN}create-podman-service.sh${NC}"
-echo "     - Interactive Quadlet service generator for containers"
+echo "     - Interactive Podman Quadlet service generator for containers"
 echo ""
 
 # --- Offer to Run Init Script ---
@@ -225,15 +225,14 @@ if [ ! -f "/home/admin/.bashrc" ]; then
   else
     echo ""
     log_info "Skipping initialization. You can run it later with:"
-    echo -e "  ${GREEN}${INSTALL_DIR}/init-service-container.sh${NC}"
+    echo -e "  ${GREEN}sudo init-service-container.sh${NC}"
   fi
 else
   echo -e "${GREEN}System appears to be already initialized.${NC}"
   echo ""
   log_info "Recommended next steps:"
-  echo -e "  1. Run: ${GREEN}${INSTALL_DIR}/setup-enhanced-motd.sh${NC}"
-  echo -e "  2. Run: ${GREEN}${INSTALL_DIR}/install-podman-cockpit.sh${NC}"
-  echo -e "  3. Deploy services with: ${GREEN}${INSTALL_DIR}/create-podman-service.sh${NC}"
+  echo -e "  1. Run: ${GREEN}sudo install-podman-cockpit.sh${NC}"
+  echo -e "  2. Deploy services with: ${GREEN}sudo create-podman-service.sh${NC}"
 fi
 
 echo ""

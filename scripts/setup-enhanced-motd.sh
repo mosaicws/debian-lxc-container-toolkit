@@ -38,22 +38,38 @@ fi
 # --- Step 3: Create enhanced MOTD scripts ---
 echo "Step 3: Creating enhanced MOTD scripts..."
 
-# 10-welcome: Header and setup instructions
+# 10-welcome: Header and setup instructions (dynamic based on installed tools)
 cat > /etc/update-motd.d/10-welcome << 'EOF'
 #!/bin/bash
 GREEN='\033[1;32m'
 BLUE='\033[1;34m'
 NC='\033[0m'
 
+# Dynamic title based on whether Podman is installed
+if command -v podman &>/dev/null; then
+  TITLE="Service Container - Debian 13 (Podman + Quadlet)"
+else
+  TITLE="Service Container - Debian 13"
+fi
+
 echo -e "\n${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}  Service Container - Debian 13 (Podman + Quadlet)${NC}"
+echo -e "${BLUE}  ${TITLE}${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
 
-echo -e "To begin, choose one of the following setup scripts:\n"
+# Show setup instructions if Podman isn't installed yet
+if ! command -v podman &>/dev/null; then
+  echo -e "${BLUE}To install Podman and Cockpit:${NC}"
+  echo -e "  ${GREEN}sudo install-podman-cockpit.sh${NC}\n"
+fi
+
+echo -e "Deploy services:\n"
 echo -e "  ${GREEN}1.${NC} Create a dedicated user for a native application:"
 echo -e "     ${GREEN}sudo create-service-user.sh${NC}\n"
-echo -e "  ${GREEN}2.${NC} Create a Podman container service:"
-echo -e "     ${GREEN}sudo create-podman-service.sh${NC}\n"
+
+if command -v podman &>/dev/null; then
+  echo -e "  ${GREEN}2.${NC} Create a Podman container service:"
+  echo -e "     ${GREEN}sudo create-podman-service.sh${NC}\n"
+fi
 EOF
 
 # 40-system-info: System resources
@@ -97,7 +113,7 @@ elif podman info &>/dev/null; then
 fi
 EOF
 
-# 50-ip-address: Network info and useful commands
+# 50-ip-address: Network info and useful commands (dynamic based on installed tools)
 cat > /etc/update-motd.d/50-ip-address << 'EOF'
 #!/bin/bash
 YELLOW='\033[1;33m'
@@ -113,18 +129,26 @@ if [ -n "$IP_ADDRESS" ]; then
   echo -e "  IP Address: ${YELLOW}${IP_ADDRESS}${NC}"
 
   # Check if Cockpit is running
-  if systemctl is-active --quiet cockpit.socket; then
+  if systemctl is-active --quiet cockpit.socket 2>/dev/null; then
     echo -e "  Cockpit:    ${YELLOW}http://${IP_ADDRESS}:9090${NC}"
   fi
   echo ""
 fi
 
+# Dynamic command list based on installed tools
 echo -e "${CYAN}Useful Commands:${NC}"
-echo -e "  ${GREEN}podman ps${NC}                   - List running containers"
+
+# Always show these basic commands
 echo -e "  ${GREEN}systemctl --type=service${NC}    - List all services"
 echo -e "  ${GREEN}journalctl -f${NC}               - View live system logs"
-echo -e "  ${GREEN}podman auto-update${NC}          - Update containers with AutoUpdate enabled\n"
 
+# Only show Podman commands if Podman is installed
+if command -v podman &>/dev/null; then
+  echo -e "  ${GREEN}podman ps${NC}                   - List running containers"
+  echo -e "  ${GREEN}podman auto-update${NC}          - Update containers with AutoUpdate enabled"
+fi
+
+echo ""
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
 EOF
 
