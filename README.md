@@ -16,8 +16,8 @@ LXC containers provide efficient isolation with minimal overhead, easy snapshots
 - **Automated initialization** of fresh Debian 13 installations
 - **Podman + Cockpit** installation in one command
 - **Interactive service generator** for creating systemd-managed containers
-- **Enhanced MOTD** with system resources and container status
-- **Security focused**: non-root execution, proper permissions, SSH hardening
+- **Dynamic MOTD** that adapts to system state (shows Podman status, Cockpit URL, relevant commands)
+- **Security focused**: secure defaults, optional remote file management, SSH hardening
 
 ## Requirements
 
@@ -48,25 +48,30 @@ The installer verifies you're on Debian 13 (not WSL2), installs scripts to `/usr
 
 ## Usage
 
-Run scripts in order on a fresh Debian 13 installation:
+The installer automatically offers to run initialization. If you skip it, or want to run it manually later:
 
-### 1. System Initialization
+### 1. System Initialization (Automatic)
 
 ```bash
 sudo init-service-container.sh
 ```
 
-Updates system, installs core utilities, creates admin user with passwordless sudo, configures SSH and bash aliases. **Log out and back in after this step.**
+This script will:
+- Update system packages
+- Install core utilities (sudo, openssh-server, wget, ca-certificates, etc.)
+- Create an 'admin' user (you'll set the SSH login password)
+- **Ask about sudo configuration:**
+  - Default [N]: Require password for sudo (more secure, standard practice)
+  - Optional [y]: Allow sudo without password (enables WinSCP/FileZilla/Cyberduck remote file editing)
+- **Ask about SSH security:**
+  - Default [Y]: Disable root login via SSH (recommended)
+  - Optional [n]: Keep root login enabled
+- Configure bash shortcuts (cls=clear, ll, la, dps, etc.)
+- **Automatically set up dynamic MOTD** (adapts to system state)
 
-### 2. Enhanced MOTD
+**Log out and back in after this step.**
 
-```bash
-sudo setup-enhanced-motd.sh
-```
-
-Configures dynamic login message showing system resources, running containers, and useful commands.
-
-### 3. Install Podman and Cockpit
+### 2. Install Podman and Cockpit (Optional)
 
 ```bash
 sudo install-podman-cockpit.sh
@@ -74,7 +79,9 @@ sudo install-podman-cockpit.sh
 
 Installs Podman runtime and Cockpit web UI (accessible at `http://<ip>:9090`).
 
-### 4. Deploy Services
+**Note:** The MOTD will automatically update to show Podman status and relevant commands after installation.
+
+### 3. Deploy Services
 
 **For containerized services:**
 
@@ -93,6 +100,22 @@ sudo create-service-user.sh
 Creates dedicated system user with directories at `/opt/<service>`, `/etc/<service>`, and `/var/lib/<service>`
 
 ## Key Concepts
+
+### Sudo Configuration
+
+During initialization, you'll choose how sudo works:
+
+- **Require password** (default, recommended): Standard security practice. You must enter your password when running sudo commands. Remote GUI file managers (WinSCP, FileZilla, etc.) cannot edit system files.
+
+- **Skip password prompts** (optional): No password needed for sudo. Enables remote GUI tools to edit any system file via SFTP. **Trade-off:** Less secure - anyone with admin credentials has instant root access.
+
+### Dynamic MOTD
+
+The login message automatically adapts to your system:
+- Shows "Debian 13" or "Debian 13 (Podman + Quadlet)" based on what's installed
+- Displays Cockpit URL when available (`http://<ip>:9090`)
+- Shows only relevant commands (e.g., podman commands only appear if Podman is installed)
+- Guides you on next steps based on system state
 
 ### User Modes (for containers)
 
@@ -161,6 +184,12 @@ ss -tlnp | grep 9090
 ## Important Notes
 
 **CRITICAL**: These scripts make system-wide changes. Never run on development machines - only on target Debian 13 LXC containers. The installer includes WSL2/Ubuntu detection to prevent accidents.
+
+**Security defaults**: The toolkit follows security best practices by default - sudo requires password, and SSH root login is disabled. You can choose less secure but more convenient options during initialization if needed for your use case.
+
+**Remote file editing**: If you enabled sudo without password prompts, configure your SFTP client:
+- **WinSCP**: Advanced → Environment → SFTP → Set server to `sudo /usr/lib/openssh/sftp-server`
+- **FileZilla/Cyberduck**: Connect via SFTP using the admin user (limited sudo support)
 
 **Directory structure:** Services use `/opt/<service>` (binaries), `/etc/<service>` (config), `/var/lib/<service>` (data).
 
