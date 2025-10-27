@@ -14,7 +14,7 @@ BLUE='\033[1;34m'
 NC='\033[0m'
 
 # --- Configuration ---
-GITHUB_REPO="mosaicws/debian-lxc-container-toolkit"  # TODO: Update with actual GitHub username/org
+GITHUB_REPO="mosaicws/debian-lxc-container-toolkit"
 GITHUB_BRANCH="main"
 INSTALL_DIR="/usr/local/sbin"
 SCRIPT_LIST=(
