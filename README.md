@@ -1,6 +1,26 @@
 # Debian LXC Container Toolkit
 
-A set of Bash scripts for setting up and managing Debian 13 service containers using Podman and systemd Quadlet.
+LXC containers in Proxmox provide powerful and convenient functionality for cleanly setting up multiple services on a Proxmox host.
+
+LXC containers:
+
+- Easy snapshots, easy rollbacks, easy to clone (depending on underlying filesystem they are stored on). ZFS recommended but doesn't allow arbitrary snapshot rollback. BTRFS does.
+- Easy automated and de-duplicated backups to Proxmox Backup Server
+- Use minimal system resources
+- Once configured with initial setup can be converted to Proxmox Templates which can then form the basis of other LXC containers. (Note: Once converted to a Template it can no longer be booted/edited. Clone the LXC or create a backup before converting to template in case you need to further amend the base LXC)
+
+Docker is a pervasive and established standard for common services. However, Docker is NOT recommended for use inside LXC containers.
+
+Since an LXC is already a containerised environment, the cleanest way of setting up a service inside it is to install it directly to the LXC. zigbee2mqtt and nanomq for example provide methods for direct installation.
+
+Where direct installation isn't either recommended or possible (e.g Home Assistant or Nginx Proxy Manager), then Podman provides an alternative to Docker which many find to be a more optimal solution and avoids some of the pitfalls associated with running Docker inside an LXC.
+
+These scripts were created to simplify:
+
+- Creating an LXC template which can be used as a "Linked Clone" and used as the basis for other LXC's which differ only in the services they run.
+- Creating a service user on the LXC
+- Setting up Podman with Cockpit and the Podman Cockpit addon providing a webui for interacting with Podman (monitoring, restarting, stopping etc).
+- Adding a service to Podman using standard Docker compose configuration settings using Podman Quadlets
 
 Designed for LXC environments with best practices for security, automation, and maintainability.
 
