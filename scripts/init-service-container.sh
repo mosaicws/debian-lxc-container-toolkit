@@ -70,10 +70,10 @@ echo -e "${GREEN}✓ System updated successfully${NC}"
 echo -e "\n${BLUE}──── Step 2: Installing Core Packages ────${NC}"
 
 # Core packages needed for administration
+# Note: curl is already installed by the installer
 PACKAGES=(
   sudo
   openssh-server
-  curl
   wget
   ca-certificates
   gnupg
@@ -257,22 +257,16 @@ echo -e "  SSH:        ${GREEN}Enabled${NC}"
 echo ""
 
 echo -e "${BLUE}Next Steps:${NC}"
-echo -e "  1. ${YELLOW}Test SSH access:${NC}"
+echo -e "  1. ${YELLOW}Log out and log back in${NC} for all changes to take effect"
+echo ""
+echo -e "  2. ${YELLOW}Test SSH access:${NC}"
 echo -e "     ssh ${ADMIN_USER}@${IP_ADDRESS:-<ip-address>}"
 echo ""
-echo -e "  2. ${YELLOW}Copy remaining setup scripts to /usr/local/sbin/:${NC}"
-echo -e "     - setup-enhanced-motd.sh"
-echo -e "     - install-podman-cockpit.sh"
-echo -e "     - create-service-user.sh"
-echo -e "     - create-podman-service.sh"
+echo -e "  3. ${YELLOW}Continue setup by running:${NC}"
+echo -e "     ${GREEN}setup-enhanced-motd.sh${NC}      - Configure login message"
+echo -e "     ${GREEN}install-podman-cockpit.sh${NC}   - Install Podman + Cockpit"
 echo ""
-echo -e "  3. ${YELLOW}Make scripts executable:${NC}"
-echo -e "     chmod +x /usr/local/sbin/*.sh"
-echo ""
-echo -e "  4. ${YELLOW}Run setup scripts in order:${NC}"
-echo -e "     /usr/local/sbin/setup-enhanced-motd.sh"
-echo -e "     /usr/local/sbin/install-podman-cockpit.sh"
-echo ""
-
-echo -e "${YELLOW}Important:${NC} Log out and log back in for all changes to take effect."
+echo -e "  4. ${YELLOW}Deploy services using:${NC}"
+echo -e "     ${GREEN}create-podman-service.sh${NC}    - For containerized services"
+echo -e "     ${GREEN}create-service-user.sh${NC}      - For native applications"
 echo ""
