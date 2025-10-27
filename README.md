@@ -1,6 +1,8 @@
-# Debian Base Scripts
+# Debian LXC Container Toolkit
 
-A comprehensive suite of Bash scripts for setting up and managing Debian 13 service containers using Podman and systemd Quadlet. Designed for LXC environments with best practices for security, automation, and maintainability.
+A set of Bash scripts for setting up and managing Debian 13 service containers using Podman and systemd Quadlet.
+
+Designed for LXC environments with best practices for security, automation, and maintainability.
 
 ## Overview
 
@@ -8,7 +10,7 @@ This project provides a standardized workflow for deploying both containerized a
 
 ## Features
 
-- **Automated System Initialization**: Set up fresh Debian 13 installations with proper user accounts, SSH configuration, and security hardening
+- **Automated System Initialization**: Set up fresh Debian 13 installations with proper user accounts, SSH configuration, and standard security hardening
 - **Enhanced MOTD**: Dynamic login messages showing system resources, running containers, and useful commands
 - **Podman Integration**: One-command installation of Podman container runtime with Cockpit web interface
 - **Interactive Service Generator**: Guided creation of systemd-managed container services using Quadlet
@@ -18,16 +20,19 @@ This project provides a standardized workflow for deploying both containerized a
 ## Requirements
 
 ### Target System
-- **Operating System**: Debian 13 (Trixie) or later
+
+- **Operating System**: Debian 13 (Trixie) or later (ideally)
 - **Environment**: LXC container (unprivileged recommended)
 - **Architecture**: amd64/x86_64
 - **Network**: Internet access for package installation and container images
 
 ### Hypervisor
+
 - Proxmox VE 8.x or later (recommended)
 - Any LXC-compatible host
 
 ### Development
+
 - Scripts are developed on Ubuntu WSL2 but **must only be executed on Debian 13 LXC containers**
 
 ## Installation
@@ -37,10 +42,8 @@ This project provides a standardized workflow for deploying both containerized a
 Download and run the bootstrap installer in one command:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/USER/debian_base_scripts/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/mosaicws/debian-lxc-container-toolkit/main/install.sh | sudo bash
 ```
-
-**Note**: Replace `USER` with your GitHub username or organization.
 
 ### Method 2: Review Before Install (Safer)
 
@@ -63,6 +66,7 @@ sudo ./install.sh
 ```
 
 The installer will:
+
 1. Verify the target system is Debian 13 (not WSL2/Ubuntu)
 2. Install all scripts to `/usr/local/sbin/`
 3. Set proper executable permissions
@@ -81,6 +85,7 @@ sudo init-service-container.sh
 ```
 
 This script will:
+
 - Update system packages
 - Install core utilities (sudo, openssh-server, curl, wget, ca-certificates)
 - Create an 'admin' user with passwordless sudo
@@ -97,6 +102,7 @@ sudo setup-enhanced-motd.sh
 ```
 
 Configures a dynamic Message of the Day that displays:
+
 - System resources (memory and disk usage)
 - Running container count and names
 - Network information and Cockpit URL
@@ -109,6 +115,7 @@ sudo install-podman-cockpit.sh
 ```
 
 Installs and configures:
+
 - Podman container runtime
 - Cockpit web interface (accessible at `http://<ip>:9090`)
 - Cockpit-Podman plugin for container management
@@ -123,6 +130,7 @@ sudo create-podman-service.sh
 ```
 
 Interactive wizard that guides you through:
+
 - Container image selection with automatic FQIN conversion
 - User mode selection (dedicated non-root, root, or root-with-PUID)
 - Network configuration (host or bridge mode)
@@ -138,6 +146,7 @@ sudo create-service-user.sh
 ```
 
 Creates a dedicated system user with:
+
 - Home directory at `/opt/<service-name>`
 - Configuration directory at `/etc/<service-name>`
 - Data directory at `/var/lib/<service-name>`
@@ -151,6 +160,7 @@ Creates a dedicated system user with:
 **Purpose**: Initial system setup for fresh Debian 13 installations
 
 **What it does**:
+
 - System package updates
 - Core utility installation
 - Admin user creation with passwordless sudo
@@ -164,6 +174,7 @@ Creates a dedicated system user with:
 **Purpose**: Configure informative login messages
 
 **What it does**:
+
 - Creates dynamic MOTD scripts in `/etc/update-motd.d/`
 - Displays system resources, containers, and network information
 - Disables conflicting default MOTD scripts
@@ -176,6 +187,7 @@ Creates a dedicated system user with:
 **Purpose**: Install container runtime and web management interface
 
 **What it does**:
+
 - Installs Podman from Debian repositories
 - Adds Debian backports for latest Cockpit
 - Installs Cockpit and cockpit-podman plugin
@@ -189,6 +201,7 @@ Creates a dedicated system user with:
 **Purpose**: Interactive Quadlet service generator for containers
 
 **What it does**:
+
 - Guided container service creation
 - Automatic FQIN (Fully Qualified Image Name) conversion
 - User mode selection for security
@@ -201,6 +214,7 @@ Creates a dedicated system user with:
 **When to use**: To deploy each new containerized service
 
 **Key Features**:
+
 - Three user modes: dedicated non-root (default), root-only, root-with-PUID
 - Two network modes: host (default), bridge with port mapping
 - Smart path warnings for absolute paths that should be relative
@@ -212,6 +226,7 @@ Creates a dedicated system user with:
 **Purpose**: Create dedicated system users for native applications
 
 **What it does**:
+
 - Username validation (Linux-compliant format)
 - System user creation with `useradd -r`
 - Directory structure creation with proper permissions
@@ -292,17 +307,20 @@ podman auto-update --dry-run
 ### User Modes
 
 **Dedicated Non-Root (Default)**:
+
 - Container runs as service UID from start
 - Files owned by dedicated service user
 - Most secure option
 - Recommended for most applications
 
 **Root-Only**:
+
 - Container runs as root (UID 0) throughout
 - Required for applications needing privileged ports without PUID/PGID support
 - Examples: nginx-proxy-manager, traefik
 
 **Root with PUID/PGID**:
+
 - Container starts as root, drops to PUID/PGID
 - Required for linuxserver.io images
 - Examples: plex, sonarr, radarr
@@ -310,12 +328,14 @@ podman auto-update --dry-run
 ### Network Modes
 
 **Host Mode (Default)**:
+
 - Container shares LXC network namespace
 - Can bind to any port including privileged ports (<1024)
 - Best performance
 - Container sees all host network interfaces
 
 **Bridge Mode**:
+
 - Isolated container network
 - Requires explicit port mapping
 - Cannot bind to privileged ports with non-root user
@@ -377,6 +397,7 @@ journalctl -u <service>.service -n 50
 ```
 
 Common issues:
+
 - Port already in use
 - Missing volume paths
 - Container image not found
@@ -427,10 +448,6 @@ Contributions are welcome! Please follow these guidelines:
 2. **Follow conventions**: Use existing color codes, error handling, and structure patterns
 3. **Update documentation**: Modify README.md and CLAUDE.md to reflect changes
 4. **Safety first**: Maintain all safety checks (root detection, OS validation, etc.)
-
-## License
-
-This project is released into the public domain. Use it freely for any purpose.
 
 ## Acknowledgments
 
