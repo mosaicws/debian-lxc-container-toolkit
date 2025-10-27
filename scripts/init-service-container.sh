@@ -215,12 +215,17 @@ systemctl start ssh
 
 echo -e "${GREEN}✓ SSH service enabled and started${NC}"
 
-# Optional: Secure SSH configuration
+# Secure SSH configuration
 echo ""
-read -p "Apply secure SSH configuration? (Disable root login, password auth optional) [y/N]: " SECURE_SSH
+echo -e "${YELLOW}SSH Security Configuration:${NC}"
+echo ""
+echo "It's recommended to disable direct root login via SSH for security."
+echo "You can still use 'sudo' after logging in as '${ADMIN_USER}'."
+echo ""
+read -p "Disable root login via SSH? (recommended) [Y/n]: " SECURE_SSH
 
-if [[ "$SECURE_SSH" =~ ^[Yy]$ ]]; then
-  echo "Applying secure SSH configuration..."
+if [[ ! "$SECURE_SSH" =~ ^[Nn]$ ]]; then
+  echo "Disabling root login via SSH..."
 
   # Backup original config
   cp "$SSHD_CONFIG" "${SSHD_CONFIG}.backup-$(date +%Y%m%d-%H%M%S)"
@@ -243,6 +248,9 @@ if [[ "$SECURE_SSH" =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}⚠ SSH restart failed, but config is valid${NC}"
     echo -e "${YELLOW}  SSH will work correctly after next reboot${NC}"
   fi
+else
+  echo -e "${YELLOW}⚠ Root login via SSH remains enabled${NC}"
+  echo -e "${YELLOW}  You can disable it later by editing /etc/ssh/sshd_config${NC}"
 fi
 
 # ============================================================================
