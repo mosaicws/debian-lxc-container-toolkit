@@ -31,25 +31,25 @@ apt update
 # To keep your console clean in an unprivileged LXC:
 # 1) Force dpkg to avoid using a PTY (so redirection works reliably)
 # 2) Temporarily redirect ALL stderr during this step into a logfile
-APT_OPTS=(-y -o Dpkg::Use-Pty=0 -t "${VERSION_CODENAME}-backports")
+# 3) Use --no-install-recommends to avoid pulling in udisks2 and other LXC-incompatible packages
+APT_OPTS=(-y -o Dpkg::Use-Pty=0 -t "${VERSION_CODENAME}-backports" --no-install-recommends)
 
 # Save current stderr on fd 3, redirect stderr to the log, then restore it after.
 exec 3>&2
 {
-  apt "${APT_OPTS[@]}" install cockpit cockpit-podman
+  # Install only the packages we need, avoiding cockpit-storaged and cockpit-packagekit
+  # cockpit-system: base system monitoring
+  # cockpit-ws: web server
+  # cockpit-podman: container management
+  apt "${APT_OPTS[@]}" install cockpit-system cockpit-ws cockpit-podman
 } 2>>"$LOG_FILE"
 exec 2>&3
 exec 3>&-
 
-# --- Remove non-functional LXC packages ---
-echo "--- Step 4: Removing non-functional Cockpit modules for LXC ---"
-echo "Removing cockpit-storaged and cockpit-packagekit (not compatible with LXC)..."
-apt remove --purge -y cockpit-storaged cockpit-packagekit 2>/dev/null || true
-apt autoremove --purge -y 2>/dev/null || true
-echo "  ✓ Removed Storage and Software Updates modules"
+echo "  ✓ Installed Cockpit with LXC-compatible modules only"
 
 # --- Verification & Final Output ---
-echo "--- Step 5: Enabling Services ---"
+echo "--- Step 4: Enabling Services ---"
 # Enable and start Cockpit web interface
 systemctl is-active --quiet cockpit.socket || systemctl enable --now cockpit.socket || true
 
