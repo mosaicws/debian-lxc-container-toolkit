@@ -6,9 +6,10 @@ A suite of bash scripts for deploying containerized services on Debian 13 LXC co
 
 LXC containers provide efficient isolation with minimal overhead, easy snapshots, and template creation. While Docker is common, running it inside LXC containers is problematic. Podman offers a cleaner solution that:
 
-- Runs rootless containers by default
-- Integrates natively with systemd
+- Integrates natively with systemd via Quadlet
 - Avoids Docker-in-LXC complications
+- Works well in unprivileged LXC containers
+- Containers can run as dedicated non-root users
 - Provides Cockpit web UI for management
 
 ## Features
@@ -57,6 +58,7 @@ sudo init-service-container.sh
 ```
 
 This script will:
+
 - Update system packages
 - Install core utilities (sudo, openssh-server, wget, ca-certificates, etc.)
 - Create an 'admin' user (you'll set the SSH login password)
@@ -112,6 +114,7 @@ During initialization, you'll choose how sudo works:
 ### Dynamic MOTD
 
 The login message automatically adapts to your system:
+
 - Shows "Debian 13" or "Debian 13 (Podman + Quadlet)" based on what's installed
 - Displays Cockpit URL when available (`http://<ip>:9090`)
 - Shows only relevant commands (e.g., podman commands only appear if Podman is installed)
@@ -188,6 +191,7 @@ ss -tlnp | grep 9090
 **Security defaults**: The toolkit follows security best practices by default - sudo requires password, and SSH root login is disabled. You can choose less secure but more convenient options during initialization if needed for your use case.
 
 **Remote file editing**: If you enabled sudo without password prompts, configure your SFTP client:
+
 - **WinSCP**: Advanced → Environment → SFTP → Set server to `sudo /usr/lib/openssh/sftp-server`
 - **FileZilla/Cyberduck**: Connect via SFTP using the admin user (limited sudo support)
 
