@@ -44,7 +44,7 @@ LXC containers (unprivileged ideally) provide efficient isolation with minimal o
 
    You can create multiple Linked Clones from this baseline Proxmox template where all the services you intent to set up share a common system configuration. This saves disk space and simplifies service container deployment.
 
-## Installation
+## Installation - inside a fresh, clean, unprivileged Debian LXC
 
 ### Quick Install
 
