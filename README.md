@@ -4,7 +4,7 @@ A suite of bash scripts for deploying containerized services on Debian 13 LXC co
 
 ## Why Podman in LXC?
 
-LXC containers provide efficient isolation with minimal overhead, easy snapshots, and template creation. While Docker is common, running it inside LXC containers is problematic. Podman offers a cleaner solution that:
+LXC containers (unprivileged ideally) provide efficient isolation with minimal overhead, easy snapshots, and template creation. While Docker is common, running it inside LXC containers is problematic. Podman offers a cleaner solution that:
 
 - Integrates natively with systemd via Quadlet
 - Avoids Docker-in-LXC complications
