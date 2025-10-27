@@ -32,7 +32,9 @@ LXC containers (unprivileged ideally) provide efficient isolation with minimal o
 2. **_Immediately_ after installation, take another snapshot - give it a meaningful, clear description, e.g. "Installed debian-lxc-container-toolkit, no scripts run"**
 3. **If you plan on setting up Docker containers using the scripts inside the LXC using Podman and Quadlets, run `bash sudo install-podman-cockpit.sh` and _then_ _take another snapshot_ before setting up any containers using the scripts.**
 
-   Now _instead_ of converting this LXC directly to a template which would mean you no longer have access to edit or configure it further, you can right click this LXC and choose "Clone". In the Clone window that appears, **crucially**, you can **choose the Snapshot** you want to create a clone from. This is a super powerful and useful feature.
+   Now _instead_ of converting this LXC directly to a template which would mean you no longer have access to edit or configure it further, you can right click this LXC and choose "Clone".
+
+   ==In the Clone window that appears, **crucially**, you can **choose the Snapshot** you want to create a clone from. This is a super powerful and useful feature.==
 
    Once you have created the clone from the chosen snapshot, you can **then** _convert this clone_ to a Proxmox template by right clicking it in the webui and choosing "Convert to template".
 
