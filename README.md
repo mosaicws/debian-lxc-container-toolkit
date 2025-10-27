@@ -1,4 +1,4 @@
-# Debian LXC Container Toolkit
+# Debian Proxmox LXC Container Toolkit
 
 A suite of bash scripts for deploying containerized services on Debian 13 LXC containers using Podman and systemd Quadlet. Designed specifically for Proxmox LXC environments as an alternative to running Docker in containers.
 
@@ -27,75 +27,100 @@ LXC containers provide efficient isolation with minimal overhead, easy snapshots
 
 ## Installation
 
-**Quick Install:**
+### Fresh Debian Installation
+
+If starting from a minimal Debian 13 installation, you'll need to install `curl` first:
+
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mosaicws/debian-lxc-container-toolkit/main/install.sh | sudo bash
+apt update && apt install -y curl
 ```
 
-**Review First (Recommended):**
+### Quick Install
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/mosaicws/debian-lxc-container-toolkit/main/install.sh)"
+```
+
+### Review First (Recommended)
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/mosaicws/debian-lxc-container-toolkit/main/install.sh -o install.sh
 less install.sh
-sudo bash install.sh
+bash install.sh
 ```
 
-The installer verifies you're on Debian 13 (not WSL2), installs scripts to `/usr/local/sbin/`, and optionally runs initialization
+The installer verifies you're on Debian 13 (not WSL2), installs scripts to `/usr/local/sbin/`, and optionally runs initialization. Note that `sudo` is not required if running as root, and will be installed by the initialization script if not present.
 
 ## Usage
 
 Run scripts in order on a fresh Debian 13 installation:
 
 ### 1. System Initialization
+
 ```bash
 sudo init-service-container.sh
 ```
+
 Updates system, installs core utilities, creates admin user with passwordless sudo, configures SSH and bash aliases. **Log out and back in after this step.**
 
 ### 2. Enhanced MOTD
+
 ```bash
 sudo setup-enhanced-motd.sh
 ```
+
 Configures dynamic login message showing system resources, running containers, and useful commands.
 
 ### 3. Install Podman and Cockpit
+
 ```bash
 sudo install-podman-cockpit.sh
 ```
+
 Installs Podman runtime and Cockpit web UI (accessible at `http://<ip>:9090`).
 
 ### 4. Deploy Services
 
 **For containerized services:**
+
 ```bash
 sudo create-podman-service.sh
 ```
+
 Interactive wizard for creating systemd-managed containers. Guides through image selection, user/network modes, volumes, environment variables, health checks, and auto-updates.
 
 **For native services:**
+
 ```bash
 sudo create-service-user.sh
 ```
+
 Creates dedicated system user with directories at `/opt/<service>`, `/etc/<service>`, and `/var/lib/<service>`
 
 ## Key Concepts
 
 ### User Modes (for containers)
+
 - **Dedicated non-root** (default): Container runs as service UID, most secure
 - **Root-only**: Runs as root throughout (for apps needing privileged ports)
 - **Root with PUID/PGID**: Starts as root, drops to PUID/PGID (linuxserver.io images)
 
 ### Network Modes
+
 - **Host** (default): Shares LXC network, can bind any port, best performance
 - **Bridge**: Isolated network with port mapping, better isolation
 
 ### Path Shortcuts
+
 The service generator supports shorthand paths:
+
 - `./data` → `/var/lib/<service>/data`
 - `./config` → `/var/lib/<service>/config`
 
 ## Service Management
 
 **Basic commands:**
+
 ```bash
 systemctl status <service>.service          # Check status
 journalctl -u <service>.service -f          # View live logs
@@ -103,12 +128,14 @@ systemctl restart <service>.service         # Restart
 ```
 
 **Edit configuration:**
+
 ```bash
 sudo nano /etc/containers/systemd/<service>.container
 sudo systemctl daemon-reload && sudo systemctl restart <service>.service
 ```
 
 **Update containers:**
+
 ```bash
 podman auto-update                          # Apply updates (if AutoUpdate enabled)
 ```
@@ -116,17 +143,21 @@ podman auto-update                          # Apply updates (if AutoUpdate enabl
 ## Troubleshooting
 
 **Service won't start:**
+
 ```bash
 journalctl -u <service>.service -n 50       # Check logs
 ```
+
 Common issues: port conflicts, missing volumes, incorrect permissions
 
 **Permission errors:**
+
 ```bash
 sudo chown -R <service>:<service> /var/lib/<service>/
 ```
 
 **Cockpit not accessible:**
+
 ```bash
 systemctl status cockpit.socket
 ss -tlnp | grep 9090
