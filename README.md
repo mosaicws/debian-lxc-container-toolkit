@@ -28,7 +28,7 @@ LXC containers (unprivileged ideally) provide efficient isolation with minimal o
 
 # Suggested usage:
 
-1. Create a Proxmox snapshot of the requisite clean Debian LXC _before_ installation of debian-lxc-container-toolkit
+1. Create a Proxmox snapshot of the requisite clean Debian LXC _before_ installation of this _debian-lxc-container-toolkit_
 2. Immediately after installation, take another snapshot - give it a meaningful, clear description, e.g. "Installed debian-lxc-container-toolkit, no scripts run"
 3. If you plan on setting up Docker containers using Podman and Quadlets using the scripts, run sudo install-podman-cockpit.sh and then _take another snapshot_ before setting up any containers.
 
