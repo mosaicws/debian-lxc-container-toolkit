@@ -27,23 +27,18 @@ LXC containers provide efficient isolation with minimal overhead, easy snapshots
 
 ## Installation
 
-### Fresh Debian Installation
-
-If starting from a minimal Debian 13 installation, you'll need to install `curl` first:
+### Quick Install (One Command)
 
 ```bash
-apt update && apt install -y curl
+apt update && apt install -y curl && bash -c "$(curl -fsSL https://raw.githubusercontent.com/mosaicws/debian-lxc-container-toolkit/main/install.sh)"
 ```
 
-### Quick Install
-
-```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/mosaicws/debian-lxc-container-toolkit/main/install.sh)"
-```
+This single command installs curl (if needed) and runs the installer. Works on fresh Debian 13 installations.
 
 ### Review First (Recommended)
 
 ```bash
+apt update && apt install -y curl
 curl -fsSL https://raw.githubusercontent.com/mosaicws/debian-lxc-container-toolkit/main/install.sh -o install.sh
 less install.sh
 bash install.sh
