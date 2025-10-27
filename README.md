@@ -27,7 +27,7 @@ LXC containers provide efficient isolation with minimal overhead, easy snapshots
 
 ## Installation
 
-### Quick Install (One Command)
+### Quick Install
 
 ```bash
 apt update && apt install -y curl && bash -c "$(curl -fsSL https://raw.githubusercontent.com/mosaicws/debian-lxc-container-toolkit/main/install.sh)"

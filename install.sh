@@ -88,7 +88,7 @@ fi
 # --- Display Header ---
 echo ""
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  Debian Base Scripts - Installation                       ║${NC}"
+echo -e "${BLUE}║  Debian Base Scripts - Installation                        ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -183,7 +183,7 @@ echo ""
 # --- Post-Installation Instructions ---
 
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  Installation Complete                                    ║${NC}"
+echo -e "${BLUE}║  Installation Complete                                     ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
