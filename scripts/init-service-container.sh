@@ -37,9 +37,10 @@ ADMIN_USER="admin"
 echo -e "${YELLOW}This script will:${NC}"
 echo -e "  1. Update the system"
 echo -e "  2. Install core packages (sudo, openssh-server)"
-echo -e "  3. Create admin user with passwordless sudo"
-echo -e "  4. Configure bash aliases"
-echo -e "  5. Set up SSH for secure access"
+echo -e "  3. Create '${ADMIN_USER}' user (you'll set SSH login password)"
+echo -e "  4. Configure sudo access (you'll choose security level)"
+echo -e "  5. Add bash shortcuts (cls=clear, ll, la, dps, etc.)"
+echo -e "  6. Set up SSH for secure access"
 echo ""
 
 read -p "Continue with initialization? [Y/n]: " CONFIRM
@@ -108,35 +109,61 @@ else
 fi
 
 # ============================================================================
-# STEP 4: Configure Passwordless Sudo
+# STEP 4: Configure Sudo Access
 # ============================================================================
 
-echo -e "\n${BLUE}──── Step 4: Configuring Passwordless Sudo ────${NC}"
+echo -e "\n${BLUE}──── Step 4: Configuring Sudo Access ────${NC}"
 
 SUDOERS_FILE="/etc/sudoers.d/90-admin-nopasswd"
+NOPASSWD_SUDO=false
 
 if [ -f "$SUDOERS_FILE" ]; then
-  echo -e "${YELLOW}Sudoers file already exists: ${SUDOERS_FILE}${NC}"
+  echo -e "${YELLOW}Sudo is already configured (NOPASSWD enabled)${NC}"
+  NOPASSWD_SUDO=true
 else
-  echo "Creating sudoers file: ${SUDOERS_FILE}"
+  echo ""
+  echo -e "${YELLOW}Remote File Management Configuration:${NC}"
+  echo ""
+  echo "Do you need to edit system files remotely using GUI file transfer tools?"
+  echo "  (WinSCP, FileZilla, Cyberduck, Transmit, etc.)"
+  echo ""
+  echo -e "${BLUE}If YES:${NC}"
+  echo -e "  - Sudo will ${YELLOW}not${NC} prompt for password"
+  echo -e "  - Remote file managers can edit any file on the system"
+  echo -e "  - ${YELLOW}Security trade-off:${NC} Anyone with ${ADMIN_USER} credentials has instant root access"
+  echo ""
+  echo -e "${BLUE}If NO (recommended):${NC}"
+  echo -e "  - Sudo will prompt for password (standard security practice)"
+  echo -e "  - You can still use SSH, terminal editors, and manual file transfers"
+  echo -e "  - More secure: requires password confirmation for privileged operations"
+  echo ""
+  read -p "Enable remote GUI file editing via SFTP/FTP tools? [y/N]: " ENABLE_NOPASSWD
 
-  # Create sudoers file with proper permissions
-  cat > "$SUDOERS_FILE" << EOF
+  if [[ "$ENABLE_NOPASSWD" =~ ^[Yy]$ ]]; then
+    echo "Creating sudoers file: ${SUDOERS_FILE}"
+
+    # Create sudoers file with proper permissions
+    cat > "$SUDOERS_FILE" << EOF
 # Allow admin user to run any command without password
-# This enables automation and non-interactive tools like WinSCP
+# This enables non-interactive tools like WinSCP to access files via sudo
 ${ADMIN_USER} ALL=(ALL:ALL) NOPASSWD: ALL
 EOF
 
-  # Set correct permissions (must be 0440 or 0640)
-  chmod 0440 "$SUDOERS_FILE"
+    # Set correct permissions (must be 0440 or 0640)
+    chmod 0440 "$SUDOERS_FILE"
 
-  # Validate sudoers syntax
-  if visudo -c -f "$SUDOERS_FILE"; then
-    echo -e "${GREEN}✓ Passwordless sudo configured for '${ADMIN_USER}'${NC}"
+    # Validate sudoers syntax
+    if visudo -c -f "$SUDOERS_FILE"; then
+      echo -e "${GREEN}✓ Sudo configured (no password prompts)${NC}"
+      NOPASSWD_SUDO=true
+    else
+      echo -e "${RED}Error: Invalid sudoers syntax. Removing file.${NC}" >&2
+      rm -f "$SUDOERS_FILE"
+      exit 1
+    fi
   else
-    echo -e "${RED}Error: Invalid sudoers syntax. Removing file.${NC}" >&2
-    rm -f "$SUDOERS_FILE"
-    exit 1
+    echo -e "${GREEN}✓ Sudo will require password (standard configuration)${NC}"
+    NOPASSWD_SUDO=false
   fi
 fi
 
@@ -219,18 +246,31 @@ if [[ "$SECURE_SSH" =~ ^[Yy]$ ]]; then
 fi
 
 # ============================================================================
-# STEP 7: WinSCP Configuration Info
+# STEP 7: Remote File Management Setup Info
 # ============================================================================
 
-echo -e "\n${BLUE}──── Step 7: WinSCP/SFTP Configuration ────${NC}"
-
-echo -e "${YELLOW}For WinSCP sudo access:${NC}"
-echo -e "  1. Connect to this server via WinSCP"
-echo -e "  2. Login as user: ${GREEN}${ADMIN_USER}${NC}"
-echo -e "  3. Go to: Advanced → Environment → SFTP"
-echo -e "  4. Set SFTP server to: ${GREEN}sudo /usr/lib/openssh/sftp-server${NC}"
-echo -e "  5. This allows WinSCP to access files as root via sudo"
-echo ""
+if [ "$NOPASSWD_SUDO" = true ]; then
+  echo -e "\n${BLUE}──── Step 7: Remote File Manager Configuration ────${NC}"
+  echo ""
+  echo -e "${YELLOW}To enable root file access in your SFTP/FTP client:${NC}"
+  echo ""
+  echo -e "${GREEN}WinSCP (Windows):${NC}"
+  echo -e "  1. Edit Site → Advanced → Environment → SFTP"
+  echo -e "  2. SFTP server: ${YELLOW}sudo /usr/lib/openssh/sftp-server${NC}"
+  echo ""
+  echo -e "${GREEN}FileZilla (Windows/Mac/Linux):${NC}"
+  echo -e "  1. Edit → Settings → SFTP → Add key file (if using SSH keys)"
+  echo -e "  2. Connect via SFTP using ${ADMIN_USER}@<ip>"
+  echo -e "  3. Note: FileZilla may have limited sudo support"
+  echo ""
+  echo -e "${GREEN}Cyberduck / Transmit (Mac):${NC}"
+  echo -e "  1. Connect via SFTP protocol"
+  echo -e "  2. Use username: ${YELLOW}${ADMIN_USER}${NC}"
+  echo -e "  3. Configure 'Transfer Files' → 'Use sudo' if available"
+  echo ""
+  echo -e "${YELLOW}You can now edit any system file through your file manager.${NC}"
+  echo ""
+fi
 
 # ============================================================================
 # STEP 8: Summary
@@ -252,7 +292,11 @@ echo ""
 
 echo -e "${BLUE}Admin User:${NC}"
 echo -e "  Username:   ${YELLOW}${ADMIN_USER}${NC}"
-echo -e "  Sudo:       ${GREEN}Passwordless (configured)${NC}"
+if [ "$NOPASSWD_SUDO" = true ]; then
+  echo -e "  Sudo:       ${GREEN}Enabled${NC} ${YELLOW}(no password prompts - remote file editing enabled)${NC}"
+else
+  echo -e "  Sudo:       ${GREEN}Enabled${NC} (requires password - standard security)"
+fi
 echo -e "  SSH:        ${GREEN}Enabled${NC}"
 echo ""
 

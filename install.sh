@@ -209,7 +209,11 @@ echo ""
 # --- Offer to Run Init Script ---
 
 if [ ! -f "/home/admin/.bashrc" ]; then
-  echo -e "${YELLOW}It appears this is a fresh system (admin user not found).${NC}"
+  echo -e "${YELLOW}This appears to be a fresh system.${NC}"
+  echo -e "The initialization script will:"
+  echo -e "  - Create an 'admin' user (you'll set the SSH login password)"
+  echo -e "  - Configure sudo access (you'll choose security level)"
+  echo -e "  - Set up SSH and bash shortcuts"
   echo ""
   read -p "Would you like to run init-service-container.sh now? [Y/n]: " RUN_INIT
 
