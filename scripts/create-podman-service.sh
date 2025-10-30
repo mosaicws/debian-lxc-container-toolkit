@@ -58,22 +58,22 @@ if [ -z "$IMAGE_NAME" ]; then
 fi
 
 # --- Smart Image Name Validation and FQIN Conversion ---
-case "$IMAGE_NAME" in
-  docker.io/*|ghcr.io/*|quay.io/*|gcr.io/*|registry.*)
-    # Already fully qualified
+# Extract the first component (before first slash)
+FIRST_COMPONENT="${IMAGE_NAME%%/*}"
+
+# Check if the first component looks like a registry (contains . or : or is localhost)
+if [[ "$FIRST_COMPONENT" == *"."* ]] || [[ "$FIRST_COMPONENT" == *":"* ]] || [[ "$FIRST_COMPONENT" == "localhost" ]]; then
+    # Already has a registry
     FQIN_IMAGE_NAME="$IMAGE_NAME"
-    ;;
-  */*)
+elif [[ "$IMAGE_NAME" == *"/"* ]]; then
     # Has namespace but no registry - assume docker.io
     FQIN_IMAGE_NAME="docker.io/$IMAGE_NAME"
     echo -e "${YELLOW}Converting to fully qualified name: ${FQIN_IMAGE_NAME}${NC}"
-    ;;
-  *)
+else
     # Just a name - assume docker.io/library
     FQIN_IMAGE_NAME="docker.io/library/$IMAGE_NAME"
     echo -e "${YELLOW}Converting to fully qualified name: ${FQIN_IMAGE_NAME}${NC}"
-    ;;
-esac
+fi
 
 # ============================================================================
 # SECTION 2: User and Permissions
